@@ -190,7 +190,7 @@ class ReviewResponseMap < ResponseMap
   # @param assignment - instance of assignment used for doing response lookups
   # @param maps - set of response maps associated with the assignment
   # @return aggregated structure containing latest version of review response
-  def self.prepare_final_review_versions(assignment, maps)
+  def self.prepare_final_review_versions(assignment, maps, round)#round added in parameters. Need to implement
     review_final_versions = {}
     rounds_num = assignment.rounds_of_reviews
     if rounds_num && (rounds_num > 1)
