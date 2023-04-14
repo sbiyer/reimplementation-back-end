@@ -1,6 +1,6 @@
 class FeedbackResponseMap < ResponseMap
   belongs_to :reviewee, class_name: 'Participant', foreign_key: 'reviewee_id'
-  belongs_to :review, class_name: 'Response', foreign_key: 'reviewed_object_id'
+  has_many :review, class_name: 'Response', foreign_key: 'reviewed_object_id'
   belongs_to :reviewer, class_name: 'AssignmentParticipant', dependent: :destroy
 
   # class variables
@@ -17,15 +17,6 @@ class FeedbackResponseMap < ResponseMap
     review.map.assignment
   end
 
-  # get review html for the associated review instance
-  def show_review
-    if review
-      review.display_as_html
-    else
-      'No review was performed'
-    end
-  end
-
   # getter for title. All response map types have a unique title
   def title
     'Feedback'
@@ -34,7 +25,7 @@ class FeedbackResponseMap < ResponseMap
 
   # get the questionaries associated with this instance of the feedback response map
   # the response map belongs to an assignment hence this is a convenience function for getting the questionaires
-  def questionnaires
+  def author_feedback_questionnaire
     assignment.questionnaires.find_by(type: 'AuthorFeedbackQuestionnaire')
   end
 
@@ -43,9 +34,20 @@ class FeedbackResponseMap < ResponseMap
     review.map.reviewee
   end
 
-  # finds the responses for round one, two, and three along with response ids
+  # get a feedback response report a given review object. This provides ability to see all feedback response for a review
   # @param id is the review object id
-  def self.latest_feedback(id)
+  def self.feedback_response_report(id)
+    @review_response_map_ids = ReviewResponseMap.where(['reviewed_object_id = ?', id]).pluck('id')
+    teams = AssignmentTeam.includes([:users]).where(parent_id: id)
+    @authors = []
+    teams.each do |team|
+      team.users.each do |user|
+        participant = AssignmentParticipant.where(parent_id: id, user_id: user.id).first
+        @authors << participant
+      end
+    end
+
+    # Finds the reviews from round one, two and three
     @temp_review_responses = Response.where(['map_id IN (?)', @review_response_map_ids]).order('created_at DESC')
     # we need to pick the latest version of review for each round
 
@@ -68,23 +70,6 @@ class FeedbackResponseMap < ResponseMap
         end
       end
     end
-  end
-
-  # get a feedback response report a given review object. This provides ability to see all feedback response for a review
-  # @param id is the review object id
-  def self.feedback_response_report(id)
-    @review_response_map_ids = ReviewResponseMap.where(['reviewed_object_id = ?', id]).pluck('id')
-    teams = AssignmentTeam.includes([:users]).where(parent_id: id)
-    @authors = []
-    teams.each do |team|
-      team.users.each do |user|
-        participant = AssignmentParticipant.where(parent_id: id, user_id: user.id).first
-        @authors << participant
-      end
-    end
-
-    # Finds the reviews from round one, two and three
-    self.latest_feedback(id)
 
     # @feedback_response_map_ids = ResponseMap.where(["reviewed_object_id IN (?) and type = ?", @all_review_response_ids, type]).pluck("id")
     # @feedback_responses = Response.where(["map_id IN (?)", @feedback_response_map_ids]).pluck("id")
