@@ -36,40 +36,47 @@ class FeedbackResponseMap < ResponseMap
 
   # get a feedback response report a given review object. This provides ability to see all feedback response for a review
   # @param id is the review object id
-  def self.feedback_response_report(id)
+  def self.feedback_response_report_by_round(id, round)
     @review_response_map_ids = ReviewResponseMap.where(['reviewed_object_id = ?', id]).pluck('id')
     teams = AssignmentTeam.includes([:users]).where(parent_id: id)
-    @authors = []
+    authors = []
     teams.each do |team|
       team.users.each do |user|
         participant = AssignmentParticipant.where(parent_id: id, user_id: user.id).first
-        @authors << participant
+        authors << participant
       end
     end
 
-    # Finds the reviews from round one, two and three
-    @temp_review_responses = Response.where(['map_id IN (?)', @review_response_map_ids]).order('created_at DESC')
-    # we need to pick the latest version of review for each round
-
     if Assignment.find(id).vary_by_round?
+      @all_review_response_ids_round = nil
 
+      # Use an iterator to filter the responses by round
+      @temp_review_responses = Response.where(['map_id IN (?)', @review_response_map_ids]).order('created_at DESC')
       @temp_review_responses.each do |response|
         next if @temp_response_map_ids.include? response.map_id.to_s + response.round.to_s
 
+        if response.round == round
+          @all_review_response_ids_round = response.id
+        end
+
         @temp_response_map_ids << response.map_id.to_s + response.round.to_s
-        @all_review_response_ids_round_one << response.id if response.round == 1
-        @all_review_response_ids_round_two << response.id if response.round == 2
-        @all_review_response_ids_round_three << response.id if response.round == 3
       end
     else
-
-      @temp_review_responses.each do |response|
-        unless @temp_response_map_ids.include? response.map_id
-          @temp_response_map_ids << response.map_id
-          @all_review_response_ids << response.id
-        end
-      end
+      # No need to filter by round if the assignment does not vary by round
+      @all_review_response_ids_round = Response.where(['map_id IN (?)', @review_response_map_ids]).pluck('id').last
     end
+
+    # Return the response IDs for the specified round
+    @all_review_response_ids_round
+    
+    # @feedback_response_map_ids = ResponseMap.where(["reviewed_object_id IN (?) and type = ?", @all_review_response_ids, type]).pluck("id")
+    # @feedback_responses = Response.where(["map_id IN (?)", @feedback_response_map_ids]).pluck("id")
+    if Assignment.find(id).vary_by_round?
+      return @authors, @all_review_response_ids_round
+    else
+      return @authors, @all_review_response_ids
+    end
+  end
 
     # @feedback_response_map_ids = ResponseMap.where(["reviewed_object_id IN (?) and type = ?", @all_review_response_ids, type]).pluck("id")
     # @feedback_responses = Response.where(["map_id IN (?)", @feedback_response_map_ids]).pluck("id")
