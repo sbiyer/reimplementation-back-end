@@ -7,6 +7,11 @@ class ResponseMap < ApplicationRecord
   belongs_to :assignment, class_name: 'Assignment', foreign_key: 'reviewed_object_id', inverse_of: false
 
 
+  #@abstract method, ovveride in derived classes if required.
+  def title
+    raise NotImplementedError, "Subclasses must implement this method"
+  end
+
   # evaluates whether this response_map was metareviewed by metareviewer
   # @param metareviewer AssignmentParticipant instance
   def metareviewed_by?(metareviewer)

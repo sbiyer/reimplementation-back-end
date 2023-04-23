@@ -41,10 +41,10 @@ class Response < ApplicationRecord
     responses = []
     if team.id
       maps = ResponseMap.where(reviewee_id: team.id, type: type)
-      map_iterator = maps.select { |map| map.response.any? && map.response.reject { |r| (r.round != round || !r.is_submitted) }.any? }
-      while map_iterator.has_next?
-        map = map_iterator.next_item
-        responses << map.response.reject { |r| (r.round != round || !r.is_submitted) }.last
+      maps.each do |map|
+        if map.response.any? && map.response.reject { |r| (r.round != round || !r.is_submitted) }.any?
+          responses << map.response.reject { |r| (r.round != round || !r.is_submitted) }.last
+        end
       end
       responses.sort! { |a, b| a.map.reviewer.fullname <=> b.map.reviewer.fullname }
     end
