@@ -13,7 +13,7 @@ class FeedbackResponseMap < ResponseMap
 
   # get the assignment instance associated with the the instance of this feedback_response_map
   # this instance is associated with a review instance hence the lookup is chained
-  def assignment
+  def  assignment
     review.map.assignment
   end
 
@@ -66,6 +66,7 @@ class FeedbackResponseMap < ResponseMap
   # email_command should be initialized to a nested hash which invoking this function {body: {}}
   # @param assignment is the assignment instance for which the email is related to
   def send_email(email_command, assignment)
-    AuthorFeedbackEmailSendingMethod.send_email(email_command, assignment)
+    mail = AuthorFeedbackEmailSendingMethod.new(email_command, assignment, reviewed_object_id)
+    mail.accept(AuthorFeedbackEmailVisitor.new)
   end
 end

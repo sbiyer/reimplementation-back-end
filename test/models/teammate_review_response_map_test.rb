@@ -44,7 +44,7 @@ class MockTeammateReponse
   end
 end
 
-class MockParticipant
+class MockParticipant < Participant
   attr_accessor :user_id
 end
 
