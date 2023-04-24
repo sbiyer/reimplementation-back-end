@@ -1,9 +1,5 @@
 
 class TeammateReviewEmailVisitor < EmailSendingVisitor
-    # def visit(email_command)
-    #   ApplicationMailer.sync_message(email_command).deliver
-    # end
-
     def visit(mail)
       mail.command[:body][:type] = 'Teammate Review'
       participant = AssignmentParticipant.find(mail.reviewee_id)
