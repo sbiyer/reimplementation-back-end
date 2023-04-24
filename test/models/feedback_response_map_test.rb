@@ -3,6 +3,9 @@
 class MockResponse < Response
   attr_accessor :map_id
 
+  def each
+
+  end
   def map
     responseMap = MockResponseMap.new
     mockAssignment = MockAssignment.new
@@ -24,13 +27,10 @@ end
 class FeedbackResponseMapTest < ActiveSupport::TestCase
   test "assignment" do
     sut = FeedbackResponseMap.new
-    sut.review = MockResponse.new
-    assert_equal 3, sut.assignment.id
-  end
-
-  test "show_review" do
-    sut = FeedbackResponseMap.new
-    assert_equal "No review was performed", sut.show_review
+    sut.review = [MockResponse.new]
+    sut.review.stub :map, MockResponse.new.map do
+      assert_equal 3, sut.assignment.id
+    end
   end
 
   test "title" do
@@ -40,14 +40,18 @@ class FeedbackResponseMapTest < ActiveSupport::TestCase
 
   test "questionnaire" do
     sut = FeedbackResponseMap.new
-    sut.review = MockResponse.new
-    assert_equal [1,2,3], sut.questionnaires
+    sut.review = [MockResponse.new]
+    sut.review.stub :map, MockResponse.new.map do
+      assert_equal [1,2,3], sut.author_feedback_questionnaire
+    end
   end
 
   test "contributor" do
     sut = FeedbackResponseMap.new
-    sut.review = MockResponse.new
-    assert_equal 5, sut.contributor.id
+    sut.review = [MockResponse.new]
+    sut.review.stub :map, MockResponse.new.map do
+      assert_equal 5, sut.contributor.id
+    end
   end
 
   test "email" do

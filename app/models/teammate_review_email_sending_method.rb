@@ -1,12 +1,13 @@
 class TeammateReviewEmailSendingMethod < EmailSendingMethod
-    def send_email(email_command, assignment)
-      email_command[:body][:type] = 'Teammate Review'
-      participant = AssignmentParticipant.find(reviewee_id)
-      email_command[:body][:obj_name] = assignment.name
-      user = User.find(participant.user_id)
-      email_command[:body][:first_name] = user.fullname
-      email_command[:to] = user.email
-  
-      visitor.visit(email_command)
-    end
+  attr_reader :command
+  attr_reader :assignment
+  attr_reader :reviewee_id
+  def initialize(command, assignment, reviewee_id)
+    @command = command
+    @assignment = assignment
+    @reviewee_id = reviewee_id
+  end
+  def accept(visitor)
+    visitor.visit(self)
+  end
   end

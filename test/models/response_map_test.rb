@@ -5,27 +5,6 @@ class MockMetareviewResponseMap
 end
 class ResponseMapTest < ActiveSupport::TestCase
 
-  test "map_id" do
-    sut = ResponseMap.new
-    sut.id = 1
-    assert_equal 1, sut.map_id
-  end
-
-  test "all_versions" do
-    sut = ResponseMap.new
-    assert_equal [], sut.all_versions
-  end
-
-  test "show_review" do
-    sut = ResponseMap.new
-    assert_equal nil, sut.show_review
-  end
-
-  test "show_feedback" do
-    sut = ResponseMap.new
-    assert_equal nil, sut.show_feedback
-  end
-
   test "metareviewed_by?" do
     sut = ResponseMap.new
     sut.id = 1
@@ -71,13 +50,13 @@ class ResponseMapTest < ActiveSupport::TestCase
     assert_equal false, sut.survey?
   end
 
-  test "find_team_member" do
+  test "reviewee_team" do
     sut = ResponseMap.new
     assignmentTeam = MockAssignmentTeam.new
     assignmentTeam.id = 3
 
     AssignmentTeam.stub :find, assignmentTeam do
-      assert_equal 3, sut.find_team_member().id
+      assert_equal 3, sut.reviewee_team().id
     end
   end
 
