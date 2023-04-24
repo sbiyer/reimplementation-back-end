@@ -106,7 +106,7 @@ class TeammateReviewResponseMapTest < ActiveSupport::TestCase
   # verfies that the instance method returns the participant who performed the review
   test "contributor" do
     sut = TeammateReviewResponseMap.new
-    assert_equal nil, sut.contributor
+    assert_nil sut.contributor
   end
 
   # verifies that the instance method returns the correct participant for an associated assignment

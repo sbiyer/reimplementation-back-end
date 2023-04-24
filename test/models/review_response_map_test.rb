@@ -41,7 +41,7 @@ class ReviewResponseMapTest < ActiveSupport::TestCase
   # verfies that the instance method return properly when there is no response associated with the respnse map
   test "show_feedback returning nil when there is no response" do
     sut = ReviewResponseMap.new
-    assert_equal nil, sut.show_feedback(nil)
+    assert_nil sut.show_feedback(nil)
   end
 
   # verfies that the instance method returns correctly when there are no meta reviews completed
